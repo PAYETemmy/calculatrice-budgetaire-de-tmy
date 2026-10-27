@@ -1,1 +1,747 @@
-jdjjjedj
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Calculatrice Budgétaire</title>
+
+  <!-- ✅ ICÔNE DU SITE (ONGLET / SAFARI / ÉCRAN D'ACCUEIL) -->
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <meta name="apple-mobile-web-app-title" content="Calculatrice">
+  <meta name="application-name" content="Calculatrice">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: auto;
+      min-height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "Helvetica Neue", sans-serif;
+      background-color: #ffffff;
+      padding: 12px;
+      font-size: 11px;
+    }
+
+    .container { max-width: 360px; margin: 0 auto; }
+
+    .input-row {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 12px;
+    }
+
+    .input-block {
+      background: white;
+      border-radius: 12px;
+      padding: 8px 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .input-wrapper:last-of-type { border-bottom: none; }
+
+    input {
+      width: 100%;
+      border: none;
+      background: none;
+      padding: 0;
+      font-size: 17px;
+      font-weight: 400;
+      color: #1f2937;
+    }
+
+    input::placeholder { color: #9ca3af; font-weight: 400; }
+    input:focus { outline: none; }
+
+    .dropdown-btn {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 34px;
+      height: 100%;
+      background: none;
+      border: none;
+      font-size: 17px;
+      cursor: pointer;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .dropdown-btn::before { content: "⋯"; color: #c5c8cf; }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 110%;
+      right: -4px;
+      width: calc(100% + 8px);
+      background: white;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      display: none;
+      flex-direction: column;
+      z-index: 20;
+    }
+
+    .dropdown-item {
+      padding: 11px;
+      font-size: 16px;
+      cursor: pointer;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .dropdown-item:last-child { border-bottom: none; }
+    .dropdown-item.edit-item { font-style: italic; color: #4b5563; }
+    .dropdown-item:active { background: #f3f4f6; }
+
+    .action-row {
+      display: flex;
+      gap: 4px;
+      margin-top: 3px;
+      margin-left: -4px;
+      margin-right: -4px;
+      margin-bottom: 4px;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 19px 0;
+      background-color: #ffffff;
+      color: #6b7280;
+      border: none;
+      border-radius: 12px;
+      font-size: 30px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .action-btn:active { background-color: #f3f4f6; }
+    .minus-btn { background-color: #ffffff; color: #6b7280; }
+
+    .presets-editor {
+      margin-top: 4px;
+      padding: 11px;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      font-size: 17px;
+      margin-left: -4px;
+      margin-right: -4px;
+    }
+
+    .presets-editor-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 7px;
+    }
+
+    .presets-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+      align-items: center;
+      border-bottom: 1px solid #d1d5db;
+      padding-bottom: 3px;
+    }
+
+    .presets-row input {
+      font-size: 17px;
+      padding: 4px 5px;
+      border: none;
+      outline: none;
+      background: none;
+    }
+
+    .presets-name { flex: 2; }
+    .presets-amount { flex: 1; text-align: right; }
+
+    .presets-delete {
+      background: none;
+      border: none;
+      font-size: 22px;
+      color: #9ca3af;
+      cursor: pointer;
+      width: 22px;
+      line-height: 1;
+      align-self: flex-end;
+      padding-bottom: 2px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .presets-delete:active { color: #dc2626; }
+
+    .presets-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 5px;
+    }
+
+    .preset-btn {
+      padding: 5px 12px;
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      background: #f9fafb;
+      font-size: 13px;
+      cursor: pointer;
+      color: #111827;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .preset-btn.primary { background: #111827; color: white; }
+
+    .operations {
+      margin-top: 5px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .operation {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #f8f9fa;
+      border-radius: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    /* ✅ BLOC TITRE */
+    .operation.title-block {
+      background: #616161;
+      margin-top: 8px;
+      padding: 10px 16px;
+    }
+
+    .operation.title-block .op-name {
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .operation.title-block .move-btn { color: #9ca3af; }
+    .operation.title-block .move-btn:disabled { color: #4b5563; }
+    .operation.title-block .delete-btn { color: #9ca3af; }
+
+    .operation.editing {
+      background: #ffffff;
+      border: 2px solid #3b82f6;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px;
+      margin-top: 0;
+    }
+
+    .operation.editing .edit-fields {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .operation.editing input {
+      border: 1px solid #d1d5db;
+      background: #f9fafb;
+      font-size: 16px;
+      padding: 6px 8px;
+      outline: none;
+      border-radius: 6px;
+    }
+
+    .operation.editing .op-name-input { flex: 2; font-weight: 600; color: #1f2937; }
+    .operation.editing .op-amount-input { flex: 1; font-weight: 700; text-align: right; }
+
+    .edit-actions { display: flex; gap: 8px; margin-left: auto; width: 100%; }
+
+    .edit-btn {
+      flex: 1;
+      background: #ffffff;
+      color: #000000;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 17px;
+      font-weight: 400;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .edit-btn.cancel { background: #ffffff; color: #6b6b6b; }
+    .edit-btn:active { background-color: #f3f4f6; }
+
+    .move-buttons { display: flex; flex-direction: column; gap: 2px; }
+
+    .move-btn {
+      background: none;
+      border: none;
+      color: #9ca3af;
+      width: 13px;
+      height: 11px;
+      font-size: 11px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .move-btn:active { color: #3b82f6; }
+    .move-btn:disabled { color: #d1d5db; }
+
+    .op-amount {
+      text-align: right;
+      flex-shrink: 0;
+      font-weight: 900;
+      font-size: 17px;
+      min-width: 55px;
+    }
+
+    .positive { color: #16a34a; }
+    .negative { color: #dc2626; }
+
+    .op-name {
+      flex: 1;
+      font-size: 17px;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #1f2937;
+    }
+
+    .op-balance {
+      text-align: right;
+      font-weight: 900;
+      font-size: 17px;
+      min-width: 75px;
+      color: #111827;
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #9ca3af;
+      font-size: 20px;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .delete-btn:active { color: #dc2626; }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="input-row">
+
+      <div class="input-block">
+        <div class="input-wrapper">
+          <input type="text" id="nameInput" placeholder="Opération">
+          <button class="dropdown-btn" type="button" onclick="toggleDropdown(event)"></button>
+          <div class="dropdown-menu" id="dropdownMenu"></div>
+        </div>
+
+        <div class="input-wrapper">
+          <input type="number" id="amountInput" placeholder="Montant" step="0.01" inputmode="decimal">
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="action-btn minus-btn" type="button" onclick="addNegative()" id="minusBtn">−</button>
+        <button class="action-btn" type="button" onclick="addOperation()" id="plusBtn">+</button>
+      </div>
+
+      <div id="presetsEditor" class="presets-editor" style="display:none;">
+        <div class="presets-editor-title">Modifier la liste rapide</div>
+        <div id="presetsList"></div>
+        <div class="presets-actions">
+          <button class="preset-btn" type="button" onclick="addPresetRow()">+ Ajouter une ligne</button>
+          <button class="preset-btn primary" type="button" onclick="savePresets()">Terminer</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="operations" id="operations"></div>
+  </div>
+
+  <script>
+    let operations = [];
+    let presets = [
+      { name: "Courses", amount: -50 },
+      { name: "Essence", amount: -20 },
+      { name: "Restaurant", amount: -30 },
+      { name: "Dépôt", amount: 100 },
+      { name: "Retrait", amount: -40 }
+    ];
+
+    const nameInput = document.getElementById('nameInput');
+    const amountInput = document.getElementById('amountInput');
+    const minusBtn = document.getElementById('minusBtn');
+    const plusBtn  = document.getElementById('plusBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+
+    function loadData() {
+      try {
+        const savedOperations = localStorage.getItem('budgetOperations');
+        const savedPresets = localStorage.getItem('budgetPresets');
+        if (savedOperations) operations = JSON.parse(savedOperations);
+        if (savedPresets) presets = JSON.parse(savedPresets);
+      } catch (e) {
+        console.error('Erreur lors du chargement des données:', e);
+      }
+    }
+
+    function saveOperations() {
+      try {
+        localStorage.setItem('budgetOperations', JSON.stringify(operations));
+      } catch (e) {
+        console.error('Erreur lors de la sauvegarde des opérations:', e);
+      }
+    }
+
+    function savePresetsToStorage() {
+      try {
+        localStorage.setItem('budgetPresets', JSON.stringify(presets));
+      } catch (e) {
+        console.error('Erreur lors de la sauvegarde des presets:', e);
+      }
+    }
+
+    function parseAmount(v) {
+      const s = String(v ?? "").trim().replace(/\s/g, "").replace("€", "").replace(",", ".");
+      const n = parseFloat(s);
+      return Number.isFinite(n) ? n : NaN;
+    }
+
+    function closeDropdown() { dropdownMenu.style.display = "none"; }
+
+    function toggleDropdown(e) {
+      if (e) e.stopPropagation();
+      dropdownMenu.style.display = (dropdownMenu.style.display === "flex") ? "none" : "flex";
+    }
+
+    function renderDropdown() {
+      dropdownMenu.innerHTML = "";
+
+      presets.forEach(p => {
+        const item = document.createElement("div");
+        item.className = "dropdown-item";
+        item.textContent = `${p.name} (${p.amount >= 0 ? "+" : ""}${p.amount} €)`;
+        item.onclick = () => selectOperation(p.name, p.amount);
+        dropdownMenu.appendChild(item);
+      });
+
+      const editItem = document.createElement("div");
+      editItem.className = "dropdown-item edit-item";
+      editItem.textContent = "Modifier…";
+      editItem.onclick = () => {
+        closeDropdown();
+        openPresetsEditor();
+      };
+      dropdownMenu.appendChild(editItem);
+    }
+
+    function selectOperation(name, amount) {
+      nameInput.value = name;
+      amountInput.value = amount;
+      closeDropdown();
+      push(name, amount);
+    }
+
+    /* ✅ "+" : montant vide + nom rempli => bloc titre ; sinon flux positif */
+    function addOperation() {
+      const name = nameInput.value.trim();
+      const raw = amountInput.value.trim();
+
+      if (raw === "") {
+        if (name) pushTitle(name);
+        return;
+      }
+
+      const amount = parseAmount(raw);
+      if (!isNaN(amount)) push(name, amount);
+    }
+
+    function addNegative() {
+      const amount = parseAmount(amountInput.value);
+      if (!isNaN(amount)) push(nameInput.value.trim(), -Math.abs(amount));
+    }
+
+    function newId() {
+      let id = Date.now();
+      while (operations.some(o => o.id === id)) id++;
+      return id;
+    }
+
+    function resetInputs() {
+      nameInput.value = "";
+      amountInput.value = "";
+      amountInput.dispatchEvent(new Event('input'));
+    }
+
+    function push(name, amount) {
+      operations.push({ id: newId(), type: "flow", name, amount });
+      resetInputs();
+      saveOperations();
+      render();
+    }
+
+    /* ✅ Ajout d'un bloc titre */
+    function pushTitle(name) {
+      operations.push({ id: newId(), type: "title", name });
+      resetInputs();
+      saveOperations();
+      render();
+    }
+
+    function openPresetsEditor() {
+      const list = document.getElementById("presetsList");
+      list.innerHTML = "";
+      presets.forEach(p => addPresetRow(p.name, p.amount));
+      document.getElementById("presetsEditor").style.display = "block";
+    }
+
+    function addPresetRow(name = "", amount = "") {
+      const list = document.getElementById("presetsList");
+      const row = document.createElement("div");
+      row.className = "presets-row";
+
+      const n = document.createElement("input");
+      n.className = "presets-name";
+      n.placeholder = "Nom";
+      n.value = name;
+
+      const a = document.createElement("input");
+      a.className = "presets-amount";
+      a.placeholder = "Montant";
+      a.value = amount;
+
+      const d = document.createElement("button");
+      d.className = "presets-delete";
+      d.type = "button";
+      d.innerHTML = "×";
+      d.onclick = () => row.remove();
+
+      row.append(n, a, d);
+      list.appendChild(row);
+    }
+
+    function savePresets() {
+      const rows = document.querySelectorAll(".presets-row");
+      presets = [];
+      rows.forEach(r => {
+        const n = r.querySelector(".presets-name").value.trim();
+        const a = parseAmount(r.querySelector(".presets-amount").value);
+        if (n && !isNaN(a)) presets.push({ name: n, amount: a });
+      });
+
+      savePresetsToStorage();
+      renderDropdown();
+      document.getElementById("presetsEditor").style.display = "none";
+    }
+
+    function render() {
+      const c = document.getElementById("operations");
+      c.innerHTML = "";
+      let balance = 0;
+
+      operations.forEach((op, i) => {
+        const isTitle = op.type === "title";
+        if (!isTitle) balance += op.amount;
+
+        const r = document.createElement("div");
+        r.className = "operation" + (isTitle ? " title-block" : "");
+        r.dataset.id = op.id;
+
+        let longPressTimer;
+
+        r.addEventListener('touchstart', () => {
+          longPressTimer = setTimeout(() => editOperation(op.id, r), 500);
+        }, { passive: true });
+
+        r.addEventListener('touchend', () => clearTimeout(longPressTimer), { passive: true });
+        r.addEventListener('touchmove', () => clearTimeout(longPressTimer), { passive: true });
+
+        r.addEventListener('mousedown', () => {
+          longPressTimer = setTimeout(() => editOperation(op.id, r), 500);
+        });
+        r.addEventListener('mouseup', () => clearTimeout(longPressTimer));
+        r.addEventListener('mouseleave', () => clearTimeout(longPressTimer));
+
+        const mv = document.createElement("div");
+        mv.className = "move-buttons";
+
+        const up = document.createElement("button");
+        up.className = "move-btn";
+        up.type = "button";
+        up.innerHTML = "▲";
+        up.disabled = i === 0;
+        up.onclick = () => {
+          [operations[i - 1], operations[i]] = [operations[i], operations[i - 1]];
+          saveOperations();
+          render();
+        };
+
+        const down = document.createElement("button");
+        down.className = "move-btn";
+        down.type = "button";
+        down.innerHTML = "▼";
+        down.disabled = i === operations.length - 1;
+        down.onclick = () => {
+          [operations[i], operations[i + 1]] = [operations[i + 1], operations[i]];
+          saveOperations();
+          render();
+        };
+
+        mv.append(up, down);
+
+        const nm = document.createElement("div");
+        nm.className = "op-name";
+        nm.textContent = op.name;
+
+        const del = document.createElement("button");
+        del.className = "delete-btn";
+        del.type = "button";
+        del.innerHTML = "×";
+        del.onclick = () => {
+          operations = operations.filter(x => x.id !== op.id);
+          saveOperations();
+          render();
+        };
+
+        if (isTitle) {
+          r.append(mv, nm, del);
+        } else {
+          const amt = document.createElement("div");
+          amt.className = "op-amount " + (op.amount >= 0 ? "positive" : "negative");
+          amt.textContent = (op.amount >= 0 ? "+" : "") + op.amount.toFixed(2) + " €";
+
+          const bal = document.createElement("div");
+          bal.className = "op-balance";
+          bal.textContent = balance.toFixed(2) + " €";
+
+          r.append(mv, amt, nm, bal, del);
+        }
+
+        c.appendChild(r);
+      });
+    }
+
+    function editOperation(id, element) {
+      const op = operations.find(o => o.id === id);
+      if (!op) return;
+
+      const isTitle = op.type === "title";
+      const originalName = op.name;
+      const originalAmount = op.amount;
+
+      element.classList.add('editing');
+      element.innerHTML = '';
+
+      const fieldsContainer = document.createElement('div');
+      fieldsContainer.className = 'edit-fields';
+
+      const nameInputEdit = document.createElement('input');
+      nameInputEdit.type = 'text';
+      nameInputEdit.value = op.name;
+      nameInputEdit.className = 'op-name-input';
+      nameInputEdit.placeholder = isTitle ? 'Titre' : 'Nom';
+
+      fieldsContainer.append(nameInputEdit);
+
+      let amountInputEdit = null;
+      if (!isTitle) {
+        amountInputEdit = document.createElement('input');
+        amountInputEdit.type = 'number';
+        amountInputEdit.value = op.amount;
+        amountInputEdit.step = '0.01';
+        amountInputEdit.className = 'op-amount-input';
+        amountInputEdit.placeholder = 'Montant';
+        fieldsContainer.append(amountInputEdit);
+      }
+
+      const actions = document.createElement('div');
+      actions.className = 'edit-actions';
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.className = 'edit-btn cancel';
+      cancelBtn.type = "button";
+      cancelBtn.textContent = 'Annuler';
+      cancelBtn.onclick = () => render();
+
+      const saveBtn = document.createElement('button');
+      saveBtn.className = 'edit-btn';
+      saveBtn.type = "button";
+      saveBtn.textContent = 'Valider';
+      saveBtn.onclick = () => {
+        op.name = nameInputEdit.value.trim() || originalName;
+        if (!isTitle) {
+          const parsed = parseFloat(amountInputEdit.value);
+          op.amount = Number.isFinite(parsed) ? parsed : originalAmount;
+        }
+        saveOperations();
+        render();
+      };
+
+      actions.append(cancelBtn, saveBtn);
+      element.append(fieldsContainer, actions);
+
+      nameInputEdit.focus();
+    }
+
+    // Fermer dropdown si tap ailleurs
+    document.addEventListener('click', closeDropdown);
+    dropdownMenu.addEventListener('click', (e) => e.stopPropagation());
+
+    // Mise à jour en temps réel des boutons lors de la saisie du montant
+    amountInput.addEventListener('input', function() {
+      const value = this.value.trim();
+
+      if (value === '') {
+        minusBtn.textContent = '−';
+        plusBtn.textContent = '+';
+      } else {
+        const amount = parseAmount(value);
+        if (!isNaN(amount) && value !== '-' && value !== '.') {
+          const formatted = amount.toFixed(2);
+          minusBtn.textContent = '−' + formatted;
+          plusBtn.textContent = '+' + formatted;
+        } else {
+          minusBtn.textContent = '−';
+          plusBtn.textContent = '+';
+        }
+      }
+    });
+
+    // Init
+    loadData();
+    renderDropdown();
+    render();
+    amountInput.dispatchEvent(new Event('input'));
+  </script>
+</body>
+</html>
